@@ -111,7 +111,7 @@ class Log extends Component {
   render() {
     return (
       <list ref="list"
-           label={`Log (${this.state.requests.length})${JSON.stringify(this.pending)}`}
+           label={`Log (${this.state.requests.length})`}
            class={stylesheet.bordered}
            width="100%"
            height={this.props.height}
@@ -260,6 +260,16 @@ function transform(xmlObj) {
   return xmlObj;
 }
 
+function findField(proto, fieldName, cb) {
+  const field = proto.field.find((f)=>f.$.name === fieldName);
+  if (field) {
+    return cb(field);
+  }
+  if (proto.proto) {
+    return findField(proto.proto[0], fieldName, cb);
+  }
+}
+
 xmlReader.on('data', function (item) {
   try {
     const packet = item;
@@ -270,11 +280,13 @@ xmlReader.on('data', function (item) {
     if (!kafkaProto) return;
     kafkaProto.frame = frameNum;
     kafkaProto.frameTime = frameTime;
-    const requestKeyField = kafkaProto.field.find((f)=>f.$.name === 'kafka.request_key');
-    if (requestKeyField) kafkaProto.request_key = parseInt(requestKeyField.$.show, 10);
-    const requestFrameField = kafkaProto.field.find((f)=>f.$.name === 'kafka.request_frame');
-    if (requestFrameField) kafkaProto.request_frame = parseInt(requestFrameField.$.show, 10);
     kafkaProto.showname = kafkaProto.$.showname;
+    findField(kafkaProto, 'kafka.request_key', (f)=>{
+      kafkaProto.request_key = f.$.show;
+    });
+    findField(kafkaProto, 'kafka.request_frame', (f)=>{
+      kafkaProto.request_frame = parseInt(f.$.show, 10);
+    });
 
     log.addPacket(kafkaProto);
   } catch(e) {
