@@ -188,16 +188,16 @@ screen.key(['r'], function(ch, key) {
 
 const { spawn } = require('child_process');
 
-const tshark = spawn('tshark', [
-                     '-l', '-i', 'lo0', '-T', 'pdml',
-                     '-o', 'kafka.tcp.ports:' + (process.argv[2] || "9191,9192,9193"),
-]);//'-Y', 'kafka.len']);
+const default_tshark_opts = [ '-o', 'kafka.tcp.ports:9092' ];
+
+const tshark_args = [ '-l', '-T', 'pdml',
+  ...( process.argv.length > 3 ? process.argv.slice(3) : default_tshark_opts ) ];
+
+console.log('tshark', ...tshark_args);
+
+const tshark = spawn('tshark', tshark_args);//'-Y', 'kafka.len']);
 
 tshark.stdout.setEncoding('utf-8');
-
-//var lineReader = require('readline').createInterface({
-//  input: tshark.stdout
-//});
 
 const Parser = require('xml-streamer');
 
