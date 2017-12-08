@@ -1,12 +1,12 @@
 {
   "name": "kafka-shark",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "Visualize kafka requests",
+  "main": "dashboard.jsx",
   "scripts": {
-    "start": "babel-node ./dashboard.jsx"
+    "start": "babel-node ."
   },
-  "author": "",
+  "author": "j@jonathanperret.net",
   "license": "ISC",
   "dependencies": {
     "react-blessed": "^0.1.8",
